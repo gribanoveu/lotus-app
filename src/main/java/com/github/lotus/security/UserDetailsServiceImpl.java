@@ -3,6 +3,7 @@ package com.github.lotus.security;
 import com.github.lotus.data.entity.User;
 import com.github.lotus.data.service.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,19 +17,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    private static final String USER_NOT_FOUND_MESSAGE = "No user present with username: ";
+
     public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("No user present with username: " + username);
-        } else {
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getHashedPassword(),
-                    getAuthorities(user));
-        }
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        User user = optionalUser.orElseThrow(() ->
+                new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE + username));
+
+        return new org.springframework.security.core.userdetails.User(
+                    user.getUsername(), user.getHashedPassword(), getAuthorities(user));
     }
 
     private static List<GrantedAuthority> getAuthorities(User user) {

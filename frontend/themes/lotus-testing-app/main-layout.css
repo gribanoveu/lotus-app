@@ -1,26 +1,53 @@
-header nav a:any-link {
+.header-links a:any-link {
   text-decoration: none;
-  padding: 0 var(--lumo-space-s);
-  border-radius: var(--lumo-border-radius-m);
+  padding: 0 0.5em;
   outline: 0;
 }
 
-header nav a:hover {
-  color: var(--lumo-header-text-color);
+.header-links a:hover {
+  color: black;
 }
 
-header nav a:active {
-  background-color: var(--lumo-contrast-5pct);
+.header-links a[highlight] span {
+  color: #005E55;
 }
 
-header nav a:focus-visible {
-  box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
+.header-links {
+  display: flex;
+  gap: 0.1em;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 0 0;
 }
 
-header nav a[highlight] span {
+.app-header {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.header-link {
+  display: flex;
+  gap: 1em;
+  height: 2em;
+  align-items: center;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
   color: var(--lumo-primary-text-color);
+  font-weight: 600;
+  font-size: 1em;
+  white-space: nowrap;
 }
 
-header nav a[highlight] {
-  background-color: var(--lumo-primary-color-10pct);
+.header-logo {
+  height: 2em;
+  margin: 0 1em 0 0;
 }

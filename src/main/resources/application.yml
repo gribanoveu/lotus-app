@@ -1,0 +1,18 @@
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    org.atmosphere: warn
+
+vaadin:
+  # Launch the default browser when starting the application in development mode
+  launch-browser: false
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.github.lotus
+
+spring:
+  jpa:
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
