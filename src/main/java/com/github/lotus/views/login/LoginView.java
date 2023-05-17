@@ -14,6 +14,9 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("Login")
 @Route(value = "login")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+    public static final String IMAGE_LOGO_PATH = "/images/logo.svg";
+    public static final String ALT_IMAGE_LOGO = "app";
+    public static final String LOGIN_ACTION = "login";
 
     private final AuthenticatedUser authenticatedUser;
     private final LoginForm login = new LoginForm();
@@ -23,9 +26,9 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
-        var logoImage = new Image("/images/logo.svg", "app");
+        var logoImage = new Image(IMAGE_LOGO_PATH, ALT_IMAGE_LOGO);
 
-        login.setAction("login");
+        login.setAction(LOGIN_ACTION);
         add(logoImage, login);
     }
 

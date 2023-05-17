@@ -2,7 +2,7 @@ package com.github.lotus.views;
 
 import com.github.lotus.data.entity.User;
 import com.github.lotus.security.AuthenticatedUser;
-import com.github.lotus.views.about.AboutView;
+import com.github.lotus.views.admin.AdminView;
 import com.github.lotus.views.helloworld.HelloWorldView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -22,9 +22,7 @@ import java.util.Optional;
 public class MainLayout extends AppLayout {
     private final AuthenticatedUser authenticatedUser;
     private final AccessAnnotationChecker accessChecker;
-
     private static final String SIGN_OUT_LABEL = "Sign out";
-
 
     public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
         this.authenticatedUser = authenticatedUser;
@@ -42,11 +40,23 @@ public class MainLayout extends AppLayout {
 
         addAppLogo(flexLayout);
         addMenuLinks(flexLayout);
-        addUserAvatar(flexLayout);
+        addUserBlock(flexLayout);
 
         layout.add(flexLayout);
         return layout;
     }
+
+    /**
+     * Список ссылок в хедере
+     * @return добавляет ссылку в качестве < li >
+     */
+    private MenuItemInfo[] createMenuItems() {
+        return new MenuItemInfo[]{ //
+                new MenuItemInfo("Hello World", HelloWorldView.class),
+                new MenuItemInfo("Admin", AdminView.class),
+        };
+    }
+
     public static class MenuItemInfo extends ListItem {
         private final Class<? extends Component> view;
         public MenuItemInfo(String menuTitle, Class<? extends Component> view) {
@@ -59,17 +69,8 @@ public class MainLayout extends AppLayout {
 
     }
 
-    /**
-     * Список ссылок в хедере
-     * @return добавляет ссылку в качестве < li >
-     */
-    private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("Hello World", HelloWorldView.class),
-                new MenuItemInfo("Admin", AboutView.class),
-        };
-    }
 
+    /** Проверить есть ли доступ и добавить ссылку в шапку */
     private void addMenuLinks(FlexLayout layout) {
         UnorderedList list = new UnorderedList();
         list.addClassName("header-links");
@@ -79,24 +80,27 @@ public class MainLayout extends AppLayout {
                 accessChecker.hasAccess(menuItem.getView())).forEach(list::add);
     }
 
+    /** Добавить лого в хедер */
     private void addAppLogo(FlexLayout layout) {
         var appName = new Image("images/logo.svg", "logo");
         appName.addClassName("header-logo");
         layout.add(appName);
     }
 
-    private void addUserAvatar(FlexLayout layout) {
+    /** добавить блок с именем пользователя, если не залогинен, то ссылка на авторизацию */
+    private void addUserBlock(FlexLayout layout) {
         authenticatedUser.get().map(user -> {
             var userMenu = createUserMenu(user);
             layout.add(userMenu);
             return true;
-        }).orElseGet(() -> { // fixme если все страницы требуют авторизации то убрать, если нет, то оставить
+        }).orElseGet(() -> {
             var loginLink = new Anchor("login", "Sign in");
             layout.add(loginLink);
             return false;
         });
     }
 
+    /** список меню после нажатия на блок пользователя*/
     private MenuBar createUserMenu(Optional<User> user) {
         MenuBar userMenu = new MenuBar();
         userMenu.setThemeName("tertiary-inline contrast");
