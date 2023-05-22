@@ -1,29 +1,18 @@
 package com.github.lotus.views.admin;
 
-import com.github.lotus.data.Role;
-import com.github.lotus.data.entity.User;
 import com.github.lotus.security.AuthenticatedUser;
 import com.github.lotus.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
-
-import java.util.Optional;
 
 @PageTitle("Admin")
 @Route(value = "admin", layout = MainLayout.class)
@@ -31,31 +20,23 @@ import java.util.Optional;
 public class AdminView extends VerticalLayout {
 
     private final AuthenticatedUser authenticatedUser;
+    private final UserSettingTab userSettingTab;
 
-    Tab profile = new Tab(new Span("User Control"));
-    Tab settings = new Tab( new Span("App Settings"));
-    Tab notifications = new Tab( new Span("Notifications"));
-
-    MultiSelectComboBox<Role> comboBox = new MultiSelectComboBox<>();
-
-
-    public AdminView(AuthenticatedUser authenticatedUser) {
+    public AdminView(AuthenticatedUser authenticatedUser, UserSettingTab userSettingTab) {
         this.authenticatedUser = authenticatedUser;
+        this.userSettingTab = userSettingTab;
 
         addClassName("admin-view");
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.START);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
         TabSheet tabSheet = new TabSheet();
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
         tabSheet.setWidthFull();
 
-
         tabSheet.add("User Setting",
-                new LazyComponent(() -> new Div(
-                        userDetails(),
-                        comboBox
+                new LazyComponent(() -> new VerticalLayout(
+                        setDetails()
                 )));
 
         tabSheet.add("User Control",
@@ -68,45 +49,31 @@ public class AdminView extends VerticalLayout {
                         new Text("This is the Dashboard tab content")
                 )));
 
-
-        add(comboBox, tabSheet);
-
+        add(tabSheet);
     }
 
-    private Component userDetails() {
-        TextField fullName = new TextField();
-        TextField userName = new TextField();
-        FormLayout formLayout = new FormLayout();
+    private Component setDetails() {
+        var formLayout = new FormLayout();
 
-        formLayout.setMaxWidth("500px");
+        // выполняем все в рамках 2 запросов к базе (юзер и роль)
+        // todo настроить миграции бд
+        authenticatedUser.getUser().map(user -> {
+            var firstName = userSettingTab.firstNameTextField(user);
+            var surName = userSettingTab.surNameTextField(user);
+            var patronymic = userSettingTab.patronymicTextField(user);
+            var username = userSettingTab.usernameTextField(user);
+            var roles = userSettingTab.rolesComboBox(user);
 
-        fullName.setRequired(true);
-        userName.setRequired(true);
-
-        formLayout.addFormItem(fullName, "Full Name");
-        formLayout.addFormItem(userName, "User Name");
-        formLayout.addFormItem(comboBox, "Roles");
-        comboBox.setWidth("500px");
-
-
-
-        authenticatedUser.get().map(user -> {
-           fullName.setValue(user.get().getName());
-           userName.setValue(user.get().getUsername());
-           comboBox.setItems(user.get().getRoles());
-           comboBox.select(user.get().getRoles());
+            formLayout.add(firstName, surName, patronymic, username, roles);
             return true;
         });
-
         return formLayout;
     }
 
     public static class LazyComponent extends Div {
         public LazyComponent(SerializableSupplier<? extends Component> supplier) {
             addAttachListener(e -> {
-                if (getElement().getChildCount() == 0) {
-                    add(supplier.get());
-                }
+                if (getElement().getChildCount() == 0) add(supplier.get());
             });
         }
     }

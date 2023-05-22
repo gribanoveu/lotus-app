@@ -14,7 +14,6 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -22,7 +21,9 @@ import java.util.Optional;
 public class MainLayout extends AppLayout {
     private final AuthenticatedUser authenticatedUser;
     private final AccessAnnotationChecker accessChecker;
+
     private static final String SIGN_OUT_LABEL = "Sign out";
+    private static final String userEmoji = "\uD83D\uDE80"; // todo добавить фичу с эмодзи для каждого пользователя
 
     public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
         this.authenticatedUser = authenticatedUser;
@@ -51,7 +52,7 @@ public class MainLayout extends AppLayout {
      * @return добавляет ссылку в качестве < li >
      */
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
+        return new MenuItemInfo[]{ // Название в шапке и указание view для перехода
                 new MenuItemInfo("Hello World", HelloWorldView.class),
                 new MenuItemInfo("Admin", AdminView.class),
         };
@@ -89,7 +90,7 @@ public class MainLayout extends AppLayout {
 
     /** добавить блок с именем пользователя, если не залогинен, то ссылка на авторизацию */
     private void addUserBlock(FlexLayout layout) {
-        authenticatedUser.get().map(user -> {
+        authenticatedUser.getUser().map(user -> {
             var userMenu = createUserMenu(user);
             layout.add(userMenu);
             return true;
@@ -101,14 +102,11 @@ public class MainLayout extends AppLayout {
     }
 
     /** список меню после нажатия на блок пользователя*/
-    private MenuBar createUserMenu(Optional<User> user) {
+    private MenuBar createUserMenu(User user) {
         MenuBar userMenu = new MenuBar();
         userMenu.setThemeName("tertiary-inline contrast");
-
-        user.ifPresent(u -> {
-            MenuItem userName = userMenu.addItem("\uD83D\uDE80" + " " + user.get().getName());
-            userName.getSubMenu().addItem(SIGN_OUT_LABEL, event -> authenticatedUser.logout());
-        });
+        MenuItem userName = userMenu.addItem(String.format("%1$s %2$s %3$s", userEmoji, user.getFirstName(), user.getSurName()));
+        userName.getSubMenu().addItem(SIGN_OUT_LABEL, event -> authenticatedUser.logout());
         return userMenu;
     }
 

@@ -2,14 +2,9 @@ package com.github.lotus.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.lotus.data.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +15,19 @@ import java.util.Set;
 @Getter @Setter
 public class User extends AbstractEntity {
 
-    private String username;
+    @NotNull(message = "Имя не должно быть пустым")
+    @NotBlank
+    private String firstName;
 
-    private String name;
+    @NotNull(message = "Фамилия не должна быть пустой")
+    @NotBlank
+    private String surName;
+
+    private String patronymic;
+
+    @NotNull(message = "Логин не должен быть пустым")
+    @NotBlank
+    private String username;
 
     @JsonIgnore
     private String hashedPassword;
