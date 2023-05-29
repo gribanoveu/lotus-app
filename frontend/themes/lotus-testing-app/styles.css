@@ -27,3 +27,9 @@
       --lumo-base-color: rgb(15, 41, 39);
 
     }
+
+.desc-border {
+    width: 4px;
+    background-color: #07ab99;
+    border-radius: 3em;
+}

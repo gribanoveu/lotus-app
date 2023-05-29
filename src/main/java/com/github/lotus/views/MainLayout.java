@@ -70,7 +70,6 @@ public class MainLayout extends AppLayout {
 
     }
 
-
     /** Проверить есть ли доступ и добавить ссылку в шапку */
     private void addMenuLinks(FlexLayout layout) {
         UnorderedList list = new UnorderedList();
@@ -90,7 +89,7 @@ public class MainLayout extends AppLayout {
 
     /** добавить блок с именем пользователя, если не залогинен, то ссылка на авторизацию */
     private void addUserBlock(FlexLayout layout) {
-        authenticatedUser.getUser().map(user -> {
+        authenticatedUser.getUser().map(user -> { // todo возможно оптимизировать запрос чтобы не грузить полностью все данные юзера
             var userMenu = createUserMenu(user);
             layout.add(userMenu);
             return true;

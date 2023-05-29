@@ -10,6 +10,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER;
+
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")
@@ -25,7 +29,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         this.authenticatedUser = authenticatedUser;
         setSizeFull();
         setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
+        setJustifyContentMode(CENTER);
         var logoImage = new Image(IMAGE_LOGO_PATH, ALT_IMAGE_LOGO);
 
         login.setAction(LOGIN_ACTION);

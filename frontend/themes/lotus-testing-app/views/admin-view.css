@@ -3,3 +3,8 @@
     border-radius: 10px;
     box-shadow: none;
 }
+
+.desc-border {
+    width: 4px;
+    background-color: dodgerblue;
+}

@@ -2,72 +2,66 @@ package com.github.lotus.views.admin;
 
 import com.github.lotus.security.AuthenticatedUser;
 import com.github.lotus.views.MainLayout;
+import com.github.lotus.views.components.TextBoxComponent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.START;
+import static com.vaadin.flow.component.tabs.TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS;
 
 @PageTitle("Admin")
 @Route(value = "admin", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
+@RolesAllowed({ "USER", "ADMIN" })
 public class AdminView extends VerticalLayout {
+    public static final String USER_SETTINGS_HEADER_TEXT = "Current user settings";
+    public static final String USER_SETTINGS_DESCRIPTION_TEXT = "Change the data of the current user and click save";
+    public static final String USER_SETTING_TAB = "User Setting";
+    public static final String ADMIN_VIEW_CLASS_NAME = "admin-view";
+    public static final String APP_SETTINGS_HEADER_TEXT = "App settings";
+    public static final String APP_SETTINGS_DESCRIPTION_TEXT = "Change the data and click save";
+    public static final String APP_SETTING_TAB = "App Setting";
 
     private final AuthenticatedUser authenticatedUser;
     private final UserSettingTab userSettingTab;
+
+    private final TabSheet tabSheet = new TabSheet();
 
     public AdminView(AuthenticatedUser authenticatedUser, UserSettingTab userSettingTab) {
         this.authenticatedUser = authenticatedUser;
         this.userSettingTab = userSettingTab;
 
-        addClassName("admin-view");
+        addClassName(ADMIN_VIEW_CLASS_NAME);
         setSizeFull();
-        setJustifyContentMode(JustifyContentMode.START);
-
-        TabSheet tabSheet = new TabSheet();
-        tabSheet.addThemeVariants(TabSheetVariant.LUMO_TABS_EQUAL_WIDTH_TABS);
+        setJustifyContentMode(START);
+        setPadding(false);
+        tabSheet.addThemeVariants(LUMO_TABS_EQUAL_WIDTH_TABS);
         tabSheet.setWidthFull();
 
-        tabSheet.add("User Setting",
+        tabSheet.add(USER_SETTING_TAB,
                 new LazyComponent(() -> new VerticalLayout(
-                        setDetails()
+                        TextBoxComponent.addTabDescription(USER_SETTINGS_HEADER_TEXT, USER_SETTINGS_DESCRIPTION_TEXT),
+                        userSettingTab.addUserDetailsInfo(authenticatedUser)
                 )));
 
-        tabSheet.add("User Control",
-                new LazyComponent(() -> new Div(
-                        new Text("This is the Dashboard tab content")
-                )));
-
-        tabSheet.add("App Setting",
-                new LazyComponent(() -> new Div(
+        tabSheet.add(APP_SETTING_TAB,
+                new LazyComponent(() -> new VerticalLayout(
+                        TextBoxComponent.addTabDescription(APP_SETTINGS_HEADER_TEXT, APP_SETTINGS_DESCRIPTION_TEXT),
                         new Text("This is the Dashboard tab content")
                 )));
 
         add(tabSheet);
-    }
-
-    private Component setDetails() {
-        var formLayout = new FormLayout();
-
-        // выполняем все в рамках 2 запросов к базе (юзер и роль)
-        // todo настроить миграции бд
-        authenticatedUser.getUser().map(user -> {
-            var firstName = userSettingTab.firstNameTextField(user);
-            var surName = userSettingTab.surNameTextField(user);
-            var patronymic = userSettingTab.patronymicTextField(user);
-            var username = userSettingTab.usernameTextField(user);
-            var roles = userSettingTab.rolesComboBox(user);
-
-            formLayout.add(firstName, surName, patronymic, username, roles);
-            return true;
-        });
-        return formLayout;
     }
 
     public static class LazyComponent extends Div {
